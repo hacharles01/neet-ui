@@ -48,7 +48,7 @@ const Home = () => {
           KWIYANDIKISHA KUBIFUZA KWIGA IMYUGA N'UBUMENYINGIRO BY'IGIHE GITO
         </Typography>
         <Typography variant="h4" gutterBottom fontWeight="bold">
-          CYANGWA GUHUZWA N'ISOKO RY'UMURIMO BARI HAGATI Y'IMYAKA 16 KUGEZA KURI 30
+          CYANGWA GUHUZWA N'ISOKO RY'UMURIMO KU BARI HAGATI Y'IMYAKA 16 KUGEZA KURI 30
         </Typography>
         <Typography variant="body1" sx={{ mt: 2, maxWidth: '800px', mx: 'auto' }}>
           Mu rwego rwo kwihutisha ihangwa ry'umurimo, hashyizweho gahunda yo kumenya urubyiruko rwifuza kwiga imyuga itandukanye mu gihe gito cyangwa guhuzwa n'isoko ry'umurimo, hagamijwe kurufasha kubona aho kwiga imyuga bifuza cyangwa se gushakirwa imirimo.
