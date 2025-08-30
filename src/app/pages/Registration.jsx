@@ -564,7 +564,7 @@ const Registration = () => {
           Registration Successful!
         </Typography>
         <Typography variant="h6" gutterBottom>
-          Thank you for registering with Rwanda TVET Board
+          Thank you for registering with MIFOTRA-RTB
         </Typography>
         <Typography variant="body1" sx={{ mb: 3 }}>
           Your registration has been submitted successfully. You will be contacted soon regarding your application.
