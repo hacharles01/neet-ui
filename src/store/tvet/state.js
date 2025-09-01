@@ -43,32 +43,13 @@ export const initialState = {
   submitResponse: null,
   
   // Location data
-  locationData: {
-    provinces: [
-      'KIGALI',
-      'SOUTHERN',
-      'WESTERN',
-      'NORTHERN',
-      'EASTERN'
-    ],
-    districts: {
-      'KIGALI': ['NYANZA', 'GISAGARA', 'NYARUGURU', 'HUYE', 'NYAMAGABE', 'RUHANGO', 'MUHANGA', 'KAMONYI'],
-      'SOUTHERN': ['NYANZA', 'GISAGARA', 'NYARUGURU', 'HUYE', 'NYAMAGABE', 'RUHANGO', 'MUHANGA', 'KAMONYI'],
-      'WESTERN': ['NYANZA', 'GISAGARA', 'NYARUGURU', 'HUYE', 'NYAMAGABE', 'RUHANGO', 'MUHANGA', 'KAMONYI'],
-      'NORTHERN': ['NYANZA', 'GISAGARA', 'NYARUGURU', 'HUYE', 'NYAMAGABE', 'RUHANGO', 'MUHANGA', 'KAMONYI'],
-      'EASTERN': ['NYANZA', 'GISAGARA', 'NYARUGURU', 'HUYE', 'NYAMAGABE', 'RUHANGO', 'MUHANGA', 'KAMONYI']
-    },
-    sectors: {
-      'NYANZA': ['CYEZA', 'KABACUZI', 'KIBANGU', 'KIYUMBA', 'MUHANGA', 'MUSHISHIRO', 'NYABINONI', 'NYAMABUYE', 'NYARUSANGE', 'RONGIRU', 'GENDABARI', 'SHYOGWE']
-    },
-    cells: {
-      'CYEZA': ['GASAVE', 'KANYANA', 'KIBAGA', 'MPINGANSANGA']
-    },
-    villages: {
-      'GASAVE': ['GAKOMA', 'GASHARU', 'GITURWA', 'NYAGASOZI', 'NYAKIBUYE', 'NYAMATETE']
-    }
-  },
-  
+locationData: {
+    provinces: [],
+    districts: [],
+    sectors: [],
+    cells: [],
+    villages: [],
+  }  ,
   // Education levels
   educationLevels: [
     'Utarageze mu ishuri',
