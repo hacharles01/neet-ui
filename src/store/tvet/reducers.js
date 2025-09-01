@@ -12,12 +12,12 @@ const tvetReducer = (state = initialState, action) => {
         },
       };
 
-    case types.RESET_REGISTRATION_FORM:
-      return {
-        ...state,
-        registrationForm: initialState.registrationForm,
-        formErrors: {},
-      };
+    // case types.RESET_REGISTRATION_FORM:
+    //   return {
+    //     ...state,
+    //     registrationForm: initialState.registrationForm,
+    //     formErrors: {},
+    //   };
 
     case types.SET_FORM_FIELD:
       return {

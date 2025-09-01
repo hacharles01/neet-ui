@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Paper,
@@ -32,13 +32,18 @@ import {
   verifyNationalId,
   clearNidData,
   setFieldError,
+  setProvinces,
+  setDistricts,
+  setSectors,
+  setCells,
+  setVillages,
 } from "../../store/tvet/actions";
 import {
-	fetchDistricts,
-	fetchCells,
-	fetchProvinces,
-	fetchSectors,
-	fetchVillages,
+  fetchDistricts,
+  fetchCells,
+  fetchProvinces,
+  fetchSectors,
+  fetchVillages,
 } from "../../utils/rwandaApi";
 
 const steps = [
@@ -52,6 +57,7 @@ const steps = [
 const Registration = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0);
+  const [warningMessage, setWarningMessage] = useState("");
 
   const {
     registrationForm,
@@ -65,10 +71,9 @@ const Registration = () => {
     nidVerification,
   } = useSelector((state) => state.tvet);
 
-  // const { userData } = useSelector((state) => state.common);
   const { verifying, verified, verificationError } = nidVerification;
 
-  // Handle NID verification
+  // Handle NID verification (unchanged)
   const handleNidVerification = async () => {
     if (
       !registrationForm.nationalId ||
@@ -83,20 +88,13 @@ const Registration = () => {
         verifyNationalId(registrationForm.nationalId)
       );
 
-      // Auto-fill form with NID data
       if (nidData) {
         dispatch(setFormField("firstName", nidData.firstName || ""));
         dispatch(setFormField("lastName", nidData.lastName || ""));
-        dispatch(setFormField("gender", nidData.gender || ""));
-        // dispatch(setFormField("gender", nidData.gender || ""));
-        // Map sex to gender: M -> GABO, F -> GORE
         dispatch(setFormField("gender", nidData.sex === "M" ? "GABO" : nidData.sex === "F" ? "GORE" : ""));
-
         if (nidData.dateOfBirth) {
           dispatch(setFormField("dateOfBirth", dayjs(nidData.dateOfBirth)));
         }
-
-        // Also set telephone if available in NID data
         if (nidData.phone) {
           dispatch(setFormField("telephone", nidData.phone));
         }
@@ -106,7 +104,7 @@ const Registration = () => {
     }
   };
 
-  // Clear NID data when nationalId changes
+  // Clear NID data when nationalId changes (unchanged)
   useEffect(() => {
     if (registrationForm.nationalId && verified) {
       dispatch(clearNidData());
@@ -116,6 +114,75 @@ const Registration = () => {
   const handleFieldChange = (fieldName, value) => {
     dispatch(setFormField(fieldName, value));
   };
+
+  // Refined function to handle location selection
+  const handleLocationChange = async (e, fieldType) => {
+    const value = e.target.value;
+
+    // Update form value
+    handleFieldChange(fieldType, value);
+
+    // Clear dependent fields
+    const fieldOrder = ["province", "district", "sector", "cell", "village"];
+    const fieldIndex = fieldOrder.indexOf(fieldType);
+    const fieldsToClear = fieldOrder.slice(fieldIndex + 1);
+
+    fieldsToClear.forEach((field) => {
+      handleFieldChange(field, "");
+      // Clear corresponding location data
+      switch (field) {
+        case "district":
+          dispatch(setDistricts([]));
+          break;
+        case "sector":
+          dispatch(setSectors([]));
+          break;
+        case "cell":
+          dispatch(setCells([]));
+          break;
+        case "village":
+          dispatch(setVillages([]));
+          break;
+        default:
+          break;
+      }
+    });
+
+    // Fetch next level data
+    try {
+      if (fieldType === "province" && value) {
+        const districtsData = await fetchDistricts(value);
+        dispatch(setDistricts(districtsData));
+      } else if (fieldType === "district" && value && registrationForm.province) {
+        const sectorsData = await fetchSectors(registrationForm.province, value);
+        dispatch(setSectors(sectorsData));
+      } else if (fieldType === "sector" && value && registrationForm.province && registrationForm.district) {
+        const cellsData = await fetchCells(registrationForm.province, registrationForm.district, value);
+        dispatch(setCells(cellsData));
+      } else if (fieldType === "cell" && value && registrationForm.province && registrationForm.district && registrationForm.sector) {
+        const villagesData = await fetchVillages(registrationForm.province, registrationForm.district, registrationForm.sector, value);
+        dispatch(setVillages(villagesData));
+      }
+    } catch (error) {
+      console.error(`Error fetching ${fieldType} data:`, error);
+      setWarningMessage(`Failed to load ${fieldType} data. Please try again.`);
+    }
+  };
+
+  // Refined initial data fetching
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const provincesData = await fetchProvinces();
+        dispatch(setProvinces(provincesData));
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+        setWarningMessage("Failed to load provinces. Please refresh the page.");
+      }
+    };
+
+    fetchInitialData();
+  }, [dispatch]);
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -128,9 +195,8 @@ const Registration = () => {
   const handleSubmit = async () => {
     try {
       await dispatch(submitRegistration(registrationForm));
-      // Success handled by Redux
     } catch (error) {
-      // Error handled by Redux
+      // Error is handled by Redux
     }
   };
 
@@ -148,22 +214,6 @@ const Registration = () => {
       return dayjs(date).format("YYYY-MM-DD");
     }
     return dayjs(date).format("YYYY-MM-DD");
-  };
-
-  const getDistrictsForProvince = (province) => {
-    return locationData.districts[province] || [];
-  };
-
-  const getSectorsForDistrict = (district) => {
-    return locationData.sectors[district] || [];
-  };
-
-  const getCellsForSector = (sector) => {
-    return locationData.cells[sector] || [];
-  };
-
-  const getVillagesForCell = (cell) => {
-    return locationData.villages[cell] || [];
   };
 
   const renderStepContent = (step) => {
@@ -395,6 +445,11 @@ const Registration = () => {
               >
                 AHO UTUYE (Where you live)
               </Typography>
+              {warningMessage && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {warningMessage}
+                </Alert>
+              )}
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <FormControl
@@ -406,13 +461,7 @@ const Registration = () => {
                     <InputLabel>Intara (Province)</InputLabel>
                     <Select
                       value={registrationForm.province}
-                      onChange={(e) => {
-                        handleFieldChange("province", e.target.value);
-                        handleFieldChange("district", "");
-                        handleFieldChange("sector", "");
-                        handleFieldChange("cell", "");
-                        handleFieldChange("village", "");
-                      }}
+                      onChange={(e) => handleLocationChange(e, "province")}
                       label="Intara (Province)"
                     >
                       {locationData.provinces.map((province) => (
@@ -433,22 +482,15 @@ const Registration = () => {
                     <InputLabel>Akarere (District)</InputLabel>
                     <Select
                       value={registrationForm.district}
-                      onChange={(e) => {
-                        handleFieldChange("district", e.target.value);
-                        handleFieldChange("sector", "");
-                        handleFieldChange("cell", "");
-                        handleFieldChange("village", "");
-                      }}
+                      onChange={(e) => handleLocationChange(e, "district")}
                       label="Akarere (District)"
                       disabled={!registrationForm.province}
                     >
-                      {getDistrictsForProvince(registrationForm.province).map(
-                        (district) => (
-                          <MenuItem key={district} value={district}>
-                            {district}
-                          </MenuItem>
-                        )
-                      )}
+                      {locationData.districts.map((district) => (
+                        <MenuItem key={district} value={district}>
+                          {district}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -462,21 +504,15 @@ const Registration = () => {
                     <InputLabel>Umurenge (Sector)</InputLabel>
                     <Select
                       value={registrationForm.sector}
-                      onChange={(e) => {
-                        handleFieldChange("sector", e.target.value);
-                        handleFieldChange("cell", "");
-                        handleFieldChange("village", "");
-                      }}
+                      onChange={(e) => handleLocationChange(e, "sector")}
                       label="Umurenge (Sector)"
                       disabled={!registrationForm.district}
                     >
-                      {getSectorsForDistrict(registrationForm.district).map(
-                        (sector) => (
-                          <MenuItem key={sector} value={sector}>
-                            {sector}
-                          </MenuItem>
-                        )
-                      )}
+                      {locationData.sectors.map((sector) => (
+                        <MenuItem key={sector} value={sector}>
+                          {sector}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -490,20 +526,15 @@ const Registration = () => {
                     <InputLabel>Akagali (Cell)</InputLabel>
                     <Select
                       value={registrationForm.cell}
-                      onChange={(e) => {
-                        handleFieldChange("cell", e.target.value);
-                        handleFieldChange("village", "");
-                      }}
+                      onChange={(e) => handleLocationChange(e, "cell")}
                       label="Akagali (Cell)"
                       disabled={!registrationForm.sector}
                     >
-                      {getCellsForSector(registrationForm.sector).map(
-                        (cell) => (
-                          <MenuItem key={cell} value={cell}>
-                            {cell}
-                          </MenuItem>
-                        )
-                      )}
+                      {locationData.cells.map((cell) => (
+                        <MenuItem key={cell} value={cell}>
+                          {cell}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -517,19 +548,15 @@ const Registration = () => {
                     <InputLabel>Umudugudu (Village)</InputLabel>
                     <Select
                       value={registrationForm.village}
-                      onChange={(e) =>
-                        handleFieldChange("village", e.target.value)
-                      }
+                      onChange={(e) => handleLocationChange(e, "village")}
                       label="Umudugudu (Village)"
                       disabled={!registrationForm.cell}
                     >
-                      {getVillagesForCell(registrationForm.cell).map(
-                        (village) => (
-                          <MenuItem key={village} value={village}>
-                            {village}
-                          </MenuItem>
-                        )
-                      )}
+                      {locationData.villages.map((village) => (
+                        <MenuItem key={village} value={village}>
+                          {village}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -697,7 +724,6 @@ const Registration = () => {
                 Review & Submit Registration
               </Typography>
 
-              {/* Registration Type */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" color="primary">
                   Registration Type:
@@ -709,7 +735,6 @@ const Registration = () => {
                 </Typography>
               </Box>
 
-              {/* Personal Information */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" color="primary">
                   Personal Information:
@@ -751,7 +776,6 @@ const Registration = () => {
                 </Grid>
               </Box>
 
-              {/* Location */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" color="primary">
                   Location:
@@ -763,7 +787,6 @@ const Registration = () => {
                 </Typography>
               </Box>
 
-              {/* Education & Skills */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" color="primary">
                   Education Level:
