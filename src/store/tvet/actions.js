@@ -126,11 +126,16 @@ export const verifyNationalId = (nationalId) => {
       });
       
       const token = authResponse.data.token;
+      // 2. Get NID Info
+      //   - [ ] REQUEST METHOD: GET
+      //   - [ ] REQUEST HEADER NAME: Authorization
+      //   - [ ] REQUEST HEADER VALUE: Bearer Token from Authentication
+      //   - [ ] REQUEST URL: https://ippis.rw/api/ilas-nida-search?nidNumber=<yourNid>
       
       // Then verify NID with the token
-      const nidResponse = await http.get(`https://ippis.rw/api/${nationalId}`, {
+      const nidResponse = await http.get(`https://ippis.rw/api/ilas-nida-search?nidNumber=${nationalId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': ` ${token}`
         }
       });
       

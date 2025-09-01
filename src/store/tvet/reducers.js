@@ -63,6 +63,7 @@ const tvetReducer = (state = initialState, action) => {
         ...state,
         submitting: true,
         submitError: null,
+        submitSuccess: false,
       };
 
     case types.SUBMIT_REGISTRATION_SUCCESS:
@@ -71,13 +72,25 @@ const tvetReducer = (state = initialState, action) => {
         submitting: false,
         submitSuccess: true,
         submitResponse: action.payload,
+        submitError: null,
       };
 
     case types.SUBMIT_REGISTRATION_FAILURE:
       return {
         ...state,
         submitting: false,
+        submitSuccess: false,
         submitError: action.payload,
+      };
+
+      case types.RESET_REGISTRATION_FORM:
+      return {
+        ...state,
+        registrationForm: initialState.registrationForm,
+        formErrors: {},
+        submitSuccess: false,
+        submitError: null, 
+        submitResponse: null,
       };
 
     case types.SET_PROVINCES:

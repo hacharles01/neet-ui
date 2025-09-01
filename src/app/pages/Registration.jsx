@@ -33,6 +33,13 @@ import {
   clearNidData,
   setFieldError,
 } from "../../store/tvet/actions";
+import {
+	fetchDistricts,
+	fetchCells,
+	fetchProvinces,
+	fetchSectors,
+	fetchVillages,
+} from "../../utils/rwandaApi";
 
 const steps = [
   "Registration Type",
@@ -59,8 +66,7 @@ const Registration = () => {
   } = useSelector((state) => state.tvet);
 
   // const { userData } = useSelector((state) => state.common);
-  const { verifying, verified, verificationError, nidData } = nidVerification;
-console.log("dataFrom Id", nidData)
+  const { verifying, verified, verificationError } = nidVerification;
 
   // Handle NID verification
   const handleNidVerification = async () => {
@@ -82,14 +88,17 @@ console.log("dataFrom Id", nidData)
         dispatch(setFormField("firstName", nidData.firstName || ""));
         dispatch(setFormField("lastName", nidData.lastName || ""));
         dispatch(setFormField("gender", nidData.gender || ""));
+        // dispatch(setFormField("gender", nidData.gender || ""));
+        // Map sex to gender: M -> GABO, F -> GORE
+        dispatch(setFormField("gender", nidData.sex === "M" ? "GABO" : nidData.sex === "F" ? "GORE" : ""));
 
         if (nidData.dateOfBirth) {
           dispatch(setFormField("dateOfBirth", dayjs(nidData.dateOfBirth)));
         }
 
         // Also set telephone if available in NID data
-        if (nidData.telephone) {
-          dispatch(setFormField("telephone", nidData.telephone));
+        if (nidData.phone) {
+          dispatch(setFormField("telephone", nidData.phone));
         }
       }
     } catch (error) {
