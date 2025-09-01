@@ -24,3 +24,10 @@ export const SET_VILLAGES = 'SET_VILLAGES';
 // Skills and Professions
 export const SET_AVAILABLE_SKILLS = 'SET_AVAILABLE_SKILLS';
 export const SET_SELECTED_SKILLS = 'SET_SELECTED_SKILLS';
+
+// NID verification action types
+export const VERIFY_NID_REQUEST = 'VERIFY_NID_REQUEST';
+export const VERIFY_NID_SUCCESS = 'VERIFY_NID_SUCCESS';
+export const VERIFY_NID_FAILURE = 'VERIFY_NID_FAILURE';
+export const CLEAR_NID_DATA = 'CLEAR_NID_DATA';
+export const SET_NID_VERIFIED = 'SET_NID_VERIFIED';

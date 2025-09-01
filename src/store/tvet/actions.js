@@ -1,4 +1,5 @@
 import * as types from './action-types';
+import http from '../../utils/axiosInsitance';
 
 // Registration form actions
 export const updateRegistrationForm = (formData) => ({
@@ -87,39 +88,112 @@ export const setSelectedSkills = (skills) => ({
   payload: skills,
 });
 
+
+// actions.js - Add these to your existing actions
+export const verifyNidRequest = () => ({
+  type: types.VERIFY_NID_REQUEST,
+});
+
+export const verifyNidSuccess = (nidData) => ({
+  type: types.VERIFY_NID_SUCCESS,
+  payload: nidData,
+});
+
+export const verifyNidFailure = (error) => ({
+  type: types.VERIFY_NID_FAILURE,
+  payload: error,
+});
+
+export const clearNidData = () => ({
+  type: types.CLEAR_NID_DATA,
+});
+
+export const setNidVerified = (status) => ({
+  type: types.SET_NID_VERIFIED,
+  payload: status,
+});
+
+// Async action for NID verification
+export const verifyNationalId = (nationalId) => {
+  return async (dispatch) => {
+    dispatch(verifyNidRequest());
+    
+    try {
+      // First authenticate to get token
+      const authResponse = await http.post('https://ippis.rw/api/authenticate', {
+        user: 'ilas',
+        secretKey: 'RdQ4R0soVaLft5IhGgtYkQC6w'
+      });
+      
+      const token = authResponse.data.token;
+      
+      // Then verify NID with the token
+      const nidResponse = await http.get(`https://ippis.rw/api/${nationalId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      dispatch(verifyNidSuccess(nidResponse.data));
+      return nidResponse.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'NID verification failed';
+      dispatch(verifyNidFailure(errorMessage));
+      throw error;
+    }
+  };
+};
+
 // Async action for submitting registration
+// export const submitRegistration = (formData) => {
+//   return async (dispatch) => {
+//     dispatch(submitRegistrationRequest());
+    
+//     try {
+//       // Simulate API call - replace with actual API endpoint
+//       const response = await simulateRegistrationSubmission(formData);
+//       dispatch(submitRegistrationSuccess(response));
+//       return response;
+//     } catch (error) {
+//       dispatch(submitRegistrationFailure(error.message));
+//       throw error;
+//     }
+//   };
+// };
+
 export const submitRegistration = (formData) => {
   return async (dispatch) => {
     dispatch(submitRegistrationRequest());
     
     try {
-      // Simulate API call - replace with actual API endpoint
-      const response = await simulateRegistrationSubmission(formData);
-      dispatch(submitRegistrationSuccess(response));
-      return response;
+      
+      const response = await http.post('/applications', formData);
+      dispatch(submitRegistrationSuccess(response.data));
+      return response.data;
     } catch (error) {
-      dispatch(submitRegistrationFailure(error.message));
+      const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+      dispatch(submitRegistrationFailure(errorMessage));
       throw error;
     }
   };
 };
 
 // Simulate registration submission - replace with actual API call
-const simulateRegistrationSubmission = async (formData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simulate validation
-      if (!formData.nationalId || !formData.firstName || !formData.lastName) {
-        reject(new Error('Required fields are missing'));
-        return;
-      }
+// const simulateRegistrationSubmission = async (formData) => {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       // Simulate validation
+//       if (!formData.nationalId || !formData.firstName || !formData.lastName) {
+//         reject(new Error('Required fields are missing'));
+//         return;
+//       }
       
-      resolve({
-        success: true,
-        message: 'Registration submitted successfully',
-        registrationId: `REG-${Date.now()}`,
-        submittedAt: new Date().toISOString(),
-      });
-    }, 2000);
-  });
-};
+//       resolve({
+//         success: true,
+//         message: 'Registration submitted successfully',
+//         registrationId: `REG-${Date.now()}`,
+//         submittedAt: new Date().toISOString(),
+//       });
+//     }, 2000);
+//   });
+// };

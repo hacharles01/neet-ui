@@ -71,8 +71,8 @@ const simulateUserFetch = async (userId) => {
           firstName: 'Jean',
           lastName: 'Uwimana',
           dateOfBirth: '1995-03-15',
-          sex: 'Gabo',
-          phone: '+250788123456',
+          gender: 'GABO',
+          telephone: '+250788123456',
           email: 'jean.uwimana@example.com'
         },
         '9876543210987654': {
@@ -80,8 +80,8 @@ const simulateUserFetch = async (userId) => {
           firstName: 'Marie',
           lastName: 'Mukamana',
           dateOfBirth: '1998-07-22',
-          sex: 'Gore',
-          phone: '+250789654321',
+          gender: 'GORE',
+          telephone: '+250789654321',
           email: 'marie.mukamana@example.com'
         }
       };

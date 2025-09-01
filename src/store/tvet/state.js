@@ -5,9 +5,9 @@ export const initialState = {
     firstName: '',
     lastName: '',
     nationalId: '',
-    sex: '',
+    gender: '',
     dateOfBirth: null,
-    phone: '',
+    telephone: '',
     email: '',
     
     // Location Information
@@ -25,6 +25,14 @@ export const initialState = {
     secondarySkill: '',
     tertiarySkill: '',
     otherSkills: '',
+  },
+
+// nid
+    nidVerification: {
+    verifying: false,
+    verified: false,
+    verificationError: null,
+    nidData: null,
   },
   
   // Form state
