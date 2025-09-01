@@ -137,6 +137,61 @@ const tvetReducer = (state = initialState, action) => {
         selectedSkills: action.payload,
       };
 
+  
+case types.VERIFY_NID_REQUEST:
+  return {
+    ...state,
+    nidVerification: {
+      ...state.nidVerification,
+      verifying: true,
+      verificationError: null,
+    },
+  };
+
+case types.VERIFY_NID_SUCCESS:
+  return {
+    ...state,
+    nidVerification: {
+      ...state.nidVerification,
+      verifying: false,
+      verified: true,
+      nidData: action.payload,
+      verificationError: null,
+    },
+  };
+
+case types.VERIFY_NID_FAILURE:
+  return {
+    ...state,
+    nidVerification: {
+      ...state.nidVerification,
+      verifying: false,
+      verified: false,
+      verificationError: action.payload,
+      nidData: null,
+    },
+  };
+
+case types.CLEAR_NID_DATA:
+  return {
+    ...state,
+    nidVerification: {
+      verifying: false,
+      verified: false,
+      verificationError: null,
+      nidData: null,
+    },
+  };
+
+case types.SET_NID_VERIFIED:
+  return {
+    ...state,
+    nidVerification: {
+      ...state.nidVerification,
+      verified: action.payload,
+    },
+  };
+
     default:
       return state;
   }
